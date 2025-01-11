@@ -1,0 +1,69 @@
+#!/bin/sh
+
+if [ ! -e ./configure.script ]; then
+	echo "configure.script is missing, aborted"
+	exit 1
+fi
+
+echo "$0 is generating config.mk and config.h"
+
+DEBUG () {
+	if ${DEBUG:-false}; then
+		echo "DEBUG: $1"
+	fi
+}
+
+PARSE () {
+	i=1
+	OPTIONAL=false
+	LABEL=""
+	RUNIF=true
+	_JOB=""
+	DEBUG "--- BEGIN Parsing operator: $OP ---"
+	while [ $i -le `echo -n "$OP" | wc -m` ]; do
+		if [ $i -gt 1 ]; then
+			_CHAR=`echo $OP | cut -c $i`
+			if [ "x$_JOB" = "x" ]; then
+				:
+			elif [ "$_JOB" = ":" ]; then
+				DEBUG "Will define label: $_CHAR"
+				LABEL="$_CHAR"
+				_JOB=""
+			elif [ "$_JOB" = "?" ]; then
+				DEBUG "Optional job specified"
+				OPTIONAL=true
+				_JOB=""
+			elif [ "$_JOB" = "@" ]; then
+				DEBUG "Will run if label $_CHAR is defined"
+				_JOB=""
+			fi
+			if [ "x$_JOB" = "x" ]; then
+				_JOB="$_CHAR"
+				DEBUG "Job token: $_JOB"
+			fi
+		fi
+		i=`expr $i +  1`
+	done
+	DEBUG "--- END Parsing ---"
+}
+
+SET_LABEL () {
+	LABEL_$1=$2
+}
+
+cat configure.script | while read a; do
+	OP=`echo $a | cut -d" " -f1`
+	ARG=`echo $a | cut -d" " -f2`
+	case "$OP" in
+		"#")
+			;;
+		h*)
+			PARSE
+#			echo -n "Checking if $ARG exists... "
+			;;
+		*)
+			echo "Invalid operation"
+			exit 1
+			;;
+	esac
+done

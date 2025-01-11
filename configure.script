@@ -1,0 +1,4 @@
+# $Id$
+# This is a script file for configure
+h?:w winsock2.h
+h@w winsock.h
