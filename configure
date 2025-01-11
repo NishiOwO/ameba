@@ -193,7 +193,9 @@ cat configure.script | while read a; do
 			if $RUNIF; then
 				if [ "x$ARG" = "xc" ]; then
 					echo -n "Probing C compiler... "
-					CC=`PROBE gcc clang cc`
+					if [ "x$CC" = "x" ]; then
+						CC=`PROBE gcc clang cc`
+					fi
 					if [ "x$CC" = "x" ]; then
 						echo "not found"
 						if $OPTIONAL; then

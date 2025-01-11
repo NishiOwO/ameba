@@ -13,5 +13,5 @@
 #   `;<char>' makes the operation define label <char> if failure
 #   `@<char>' makes the operation run if label <char> is defined
 p c
-h?:w winsock2.h
+h?:w;u winsock2.h
 h@w ws2tcpip.h
