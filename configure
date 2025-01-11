@@ -5,10 +5,10 @@ if [ ! -e ./configure.script ]; then
 	exit 1
 fi
 
-echo "$0 is generating config.mk and config.h"
+echo "$0 is generating config.mk/config.h/Makefile"
 
 DEBUG () {
-	if ${DEBUG:-false}; then
+	if ${DODEBUG:-false}; then
 		echo "DEBUG: $1" > /dev/stderr
 	fi
 }
