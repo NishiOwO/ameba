@@ -4,8 +4,9 @@
 # List of operators:
 #   `h'       checks the header
 #   `#'       specifies itself as comment
-#   `pc'      probes the C compiler
+#   `p c'     probes the C compiler
 #   `m'       prints a message
+#   `f ansi'  checks the flag for ANSI (C89)
 #
 # List of jobs:
 #   `?'       marks the operation as optional
@@ -13,6 +14,7 @@
 #   `;<char>' makes the operation define label <char> if failure
 #   `@<char>' makes the operation run if label <char> is defined
 p c
+f? ansi
 
 s?:m malloc@stdlib.h
 d@m HAS_MALLOC

@@ -106,7 +106,7 @@ COMPILE_C () {
 	cd /tmp
 	DEBUG "--- BEGIN C program check ---"
 	printf "$1" > $$.c
-	$CC -c -o $$.o $$.c >/dev/null 2>&1
+	$CC $2 -c -o $$.o $$.c >/dev/null 2>&1
 	RET=$?
 	cd $OLDPWD
 	if [ "$RET" = "0" ]; then
@@ -163,7 +163,7 @@ AFTER () {
 	fi
 }
 
-echo "# This file was auto-generated" >> config.mk
+echo "# This file was auto-generated" > config.mk
 echo "/* This file was auto-generated */" > config.h
 
 cat configure.script | while read a; do
@@ -176,6 +176,37 @@ cat configure.script | while read a; do
 	DEBUG "Argument: $ARG"
 	case "$OP" in
 		"#")
+			;;
+		f*)
+			PARSE
+			if $RUNIF; then
+				if [ "$ARG" = "ansi" ]; then
+					echo -n "Checking the flag for ANSI... "
+					COMPILE_C "int main(int argc, char** argv){}" "-std=c89"
+					if [ "$RET" = "0" ]; then
+						ANSI="-std=c89"
+					else
+						COMPILE_C "int main(int argc, char** argv){}" "-ansi"
+						if [ "$RET" = "0" ]; then
+							ANSI="-ansi"
+						fi
+					fi
+					if [ "x$ANSI" = "x" ]; then
+						echo "(none?)"
+						if $OPTIONAL; then
+							:
+						else
+							echo "Cannot find a flag for C89!"
+							exit 1
+						fi
+					else
+						echo "$ANSI"
+					fi
+				else
+					echo "Not supported"
+					exit 1
+				fi
+			fi
 			;;
 		s*)
 			PARSE
@@ -197,6 +228,12 @@ cat configure.script | while read a; do
 					fi
 				fi
 				AFTER $RET
+			fi
+			;;
+		d*)
+			PARSE
+			if $RUNIF; then
+				echo "#define $ARG 1" >> config.h
 			fi
 			;;
 		h*)
@@ -238,6 +275,7 @@ cat configure.script | while read a; do
 						AFTER 1
 					else
 						echo "$CC"
+						echo "CC=$CC" >> config.mk
 						AFTER 0
 					fi
 				else
