@@ -9,7 +9,7 @@ echo "$0 is generating config.mk and config.h"
 
 DEBUG () {
 	if ${DEBUG:-false}; then
-		echo "DEBUG: $1"
+		echo "DEBUG: $1" > /dev/stderr
 	fi
 }
 
@@ -17,53 +17,209 @@ PARSE () {
 	i=1
 	OPTIONAL=false
 	LABEL=""
+	FAILLABEL=""
 	RUNIF=true
 	_JOB=""
+	OPLEN=`echo -n "$OP" | wc -m`
 	DEBUG "--- BEGIN Parsing operator: $OP ---"
-	while [ $i -le `echo -n "$OP" | wc -m` ]; do
+	while [ $i -le $OPLEN ]; do
 		if [ $i -gt 1 ]; then
 			_CHAR=`echo $OP | cut -c $i`
+			_EXEC=false
+
+			# Arguments required
 			if [ "x$_JOB" = "x" ]; then
 				:
 			elif [ "$_JOB" = ":" ]; then
 				DEBUG "Will define label: $_CHAR"
 				LABEL="$_CHAR"
-				_JOB=""
-			elif [ "$_JOB" = "?" ]; then
-				DEBUG "Optional job specified"
-				OPTIONAL=true
-				_JOB=""
+				_EXEC=true
+			elif [ "$_JOB" = ";" ]; then
+				DEBUG "Will define label if failed: $_CHAR"
+				FAILLABEL="$_CHAR"
+				_EXEC=true
 			elif [ "$_JOB" = "@" ]; then
 				DEBUG "Will run if label $_CHAR is defined"
-				_JOB=""
+				RUNIF=`GET_LABEL $_CHAR`
+				if $RUNIF; then
+					DEBUG "Running, label $_CHAR is defined"
+				else
+					DEBUG "Not running, label $_CHAR is not defined"
+				fi
+				_EXEC=true
 			fi
 			if [ "x$_JOB" = "x" ]; then
 				_JOB="$_CHAR"
 				DEBUG "Job token: $_JOB"
 			fi
+
+			# No arguments required
+			if [ "$_JOB" = "?" ]; then
+				DEBUG "Optional job specified"
+				OPTIONAL=true
+				_JOB=""
+			fi
+
+			if $_EXEC; then
+				_JOB=""
+			fi
 		fi
 		i=`expr $i +  1`
 	done
-	DEBUG "--- END Parsing ---"
+	DEBUG "--- END Parsing operator: $OP ---"
 }
 
 SET_LABEL () {
-	LABEL_$1=$2
+	eval LABEL_$1=$2
+}
+
+GET_LABEL () {
+	RESULT=`eval echo \\\$LABEL_$1`
+	if [ "x$RESULT" = "x" ]; then
+		echo "false"
+	else
+		echo $RESULT
+	fi
+}
+
+TEST_C () {
+	OLDPWD=`pwd`
+	cd /tmp
+	DEBUG "--- BEGIN C compiler check: $1 ---"
+	echo "int main(int argc, char** argv){return 0;}" >> $$.c
+	$1 -c -o $$.o $$.c >/dev/null 2>&1
+	RET=$?
+	cd $OLDPWD
+	if [ "$RET" = "0" ]; then
+		rm -f $$.o
+		DEBUG "Seems to compile fine"
+	else
+		DEBUG "Compilation failure"
+	fi
+	rm -f $$.c
+	DEBUG "--- END C compiler check: $1 ---"
+	return $RET
+}
+
+COMPILE_C () {
+	OLDPWD=`pwd`
+	cd /tmp
+	DEBUG "--- BEGIN C program check ---"
+	printf "$1" > $$.c
+	$CC -c -o $$.o $$.c >/dev/null 2>&1
+	RET=$?
+	cd $OLDPWD
+	if [ "$RET" = "0" ]; then
+		rm -f $$.o
+		DEBUG "Seems to compile fine"
+	else
+		DEBUG "Compilation failure"
+	fi
+	rm -f $$.c
+	DEBUG "--- END C program check ---"
+	return $RET
+}
+
+PROBE () {
+	DEBUG "--- BEGIN Probing ---"
+	for i in $@; do
+		OLDIFS="$IFS"
+		IFS=":"
+		for p in $PATH; do
+			if [ -f $p/$i ]; then
+				DEBUG "$p/$i exists"
+				IFS="$OLDIFS"
+				if TEST_C $p/$i; then
+					IFS=":"
+					echo $p/$i
+					DEBUG "--- END Probing ---"
+					return 0
+				fi
+				IFS=":"
+			else
+				DEBUG "$p/$i does not exist"
+			fi
+		done
+		IFS="$OLDIFS"
+	done
+	DEBUG "--- END Probing ---"
+	return 1
+}
+
+AFTER () {
+	if [ ! "x$LABEL" = "x" ]; then
+		if [ "$1" = "0" ]; then
+			SET_LABEL $LABEL true
+		else
+			SET_LABEL $LABEL false
+		fi
+	fi
+	if [ ! "x$FAILLABEL" = "x" ]; then
+		if [ "$1" = "0" ]; then
+			SET_LABEL $FAILLABEL false
+		else
+			SET_LABEL $FAILLABEL true
+		fi
+	fi
 }
 
 cat configure.script | while read a; do
 	OP=`echo $a | cut -d" " -f1`
-	ARG=`echo $a | cut -d" " -f2`
+	LEN=`echo -n $OP | wc -m`
+	LEN=`expr $LEN + 2`
+	ARG=`echo $a | cut -c$LEN-`
+	DEBUG "--- BEGIN Line $a ---"
+	DEBUG "Operator: $OP"
+	DEBUG "Argument: $ARG"
 	case "$OP" in
 		"#")
 			;;
 		h*)
 			PARSE
-#			echo -n "Checking if $ARG exists... "
+			if $RUNIF; then
+				echo -n "Checking if $ARG exists... "
+				COMPILE_C "#include <$ARG>"
+				RET=$?
+				if [ "$RET" = "0" ]; then
+					echo "yes"
+				else
+					echo "no"
+				fi
+				AFTER $RET
+			fi
+			;;
+		p*)
+			PARSE
+			if $RUNIF; then
+				if [ "x$ARG" = "xc" ]; then
+					echo -n "Probing C compiler... "
+					CC=`PROBE gcc clang cc`
+					if [ "x$CC" = "x" ]; then
+						echo "not found"
+						if $OPTIONAL; then
+							:
+						else
+							echo "C compiler not found!" > /dev/stderr
+							exit 1
+						fi
+						AFTER 1
+					else
+						echo "$CC"
+						AFTER 0
+					fi
+				else
+					echo "Not supported"
+					exit 1
+				fi
+			fi
+			;;
+		m)
+			echo "$ARG"
 			;;
 		*)
 			echo "Invalid operation"
 			exit 1
 			;;
 	esac
+	DEBUG "--- END Line $a ---"
 done

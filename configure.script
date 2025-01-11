@@ -1,4 +1,17 @@
 # $Id$
 # This is a script file for configure
+#
+# List of operators:
+#   `h'       checks the header
+#   `#'       specifies itself as comment
+#   `pc'      probes the C compiler
+#   `m'       prints a message
+#
+# List of jobs:
+#   `?'       marks the operation as optional
+#   `:<char>' makes the operation define label <char> if successful
+#   `;<char>' makes the operation define label <char> if failure
+#   `@<char>' makes the operation run if label <char> is defined
+p c
 h?:w winsock2.h
-h@w winsock.h
+h@w ws2tcpip.h
