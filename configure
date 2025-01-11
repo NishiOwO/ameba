@@ -163,6 +163,9 @@ AFTER () {
 	fi
 }
 
+echo "# This file was auto-generated" >> config.mk
+echo "/* This file was auto-generated */" > config.h
+
 cat configure.script | while read a; do
 	OP=`echo $a | cut -d" " -f1`
 	LEN=`echo -n $OP | wc -m`
@@ -174,6 +177,28 @@ cat configure.script | while read a; do
 	case "$OP" in
 		"#")
 			;;
+		s*)
+			PARSE
+			if $RUNIF; then
+				SYMBOL=`echo $ARG | cut -d"@" -f1`
+				HEADER=`echo $ARG | cut -d"@" -f2`
+				echo -n "Checking if $SYMBOL exists in $HEADER... "
+				COMPILE_C "#include <$HEADER>\nint main(int argc, char** argv){(void)$SYMBOL;return 0;}"
+				RET=$?
+				if [ "$RET" = "0" ]; then
+					echo "yes"
+				else
+					echo "no"
+					if $OPTIONAL; then
+						:
+					else
+						echo "Symbol not found!" > /dev/stderr
+						exit 1
+					fi
+				fi
+				AFTER $RET
+			fi
+			;;
 		h*)
 			PARSE
 			if $RUNIF; then
@@ -184,6 +209,12 @@ cat configure.script | while read a; do
 					echo "yes"
 				else
 					echo "no"
+					if $OPTIONAL; then
+						:
+					else
+						echo "Header not found!" > /dev/stderr
+						exit 1
+					fi
 				fi
 				AFTER $RET
 			fi
@@ -217,10 +248,6 @@ cat configure.script | while read a; do
 			;;
 		m)
 			echo "$ARG"
-			;;
-		*)
-			echo "Invalid operation"
-			exit 1
 			;;
 	esac
 	DEBUG "--- END Line $a ---"

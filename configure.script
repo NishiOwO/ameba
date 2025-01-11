@@ -13,5 +13,9 @@
 #   `;<char>' makes the operation define label <char> if failure
 #   `@<char>' makes the operation run if label <char> is defined
 p c
+
+s?:m malloc@stdlib.h
+d@m HAS_MALLOC
+
 h?:w;u winsock2.h
 h@w ws2tcpip.h
