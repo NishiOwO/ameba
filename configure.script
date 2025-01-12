@@ -7,6 +7,7 @@
 #   `p c'     probes the C compiler
 #   `m'       prints a message
 #   `f ansi'  checks the flag for ANSI (C89)
+#   `o'       generates files
 #
 # List of jobs:
 #   `?'       marks the operation as optional
@@ -16,8 +17,21 @@
 p c
 f? ansi
 
+# Really old os seems to not define malloc in stdlib.h
 s?:m malloc@stdlib.h
 d@m HAS_MALLOC
 
+# WinSock2
 h?:w;u winsock2.h
 h@w ws2tcpip.h
+
+# BSD Socket
+h@u sys/socket.h
+h@u netinet/in.h
+h@u arpa/inet.h
+
+# stdint.h is missing in C89, but use it if present
+h?;i stdint.h
+
+# Output files
+o Makefile
