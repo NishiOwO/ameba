@@ -1,6 +1,8 @@
 #!/bin/sh
 
-EXPORTS=""
+TOP=`pwd`
+
+EXPORTS="TOP"
 
 if [ ! -e ./configure.script ]; then
 	echo "configure.script is missing, aborted"
@@ -106,7 +108,6 @@ TEST_C () {
 	echo "int main(int argc, char** argv){return 0;}" >> $$.c
 	$1 -c -o $$.o $$.c >/dev/null 2>&1
 	RET=$?
-	cd $OLDPWD
 	if [ "$RET" = "0" ]; then
 		rm -f $$.o
 		DEBUG "Seems to compile fine"
@@ -114,6 +115,7 @@ TEST_C () {
 		DEBUG "Compilation failure"
 	fi
 	rm -f $$.c
+	cd $OLDPWD
 	DEBUG "--- END C compiler check: $1 ---"
 	return $RET
 }
@@ -125,7 +127,6 @@ COMPILE_C () {
 	printf "$1" > $$.c
 	$CC $2 -c -o $$.o $$.c >/dev/null 2>&1
 	RET=$?
-	cd $OLDPWD
 	if [ "$RET" = "0" ]; then
 		rm -f $$.o
 		DEBUG "Seems to compile fine"
@@ -133,6 +134,7 @@ COMPILE_C () {
 		DEBUG "Compilation failure"
 	fi
 	rm -f $$.c
+	cd $OLDPWD
 	DEBUG "--- END C program check ---"
 	return $RET
 }
@@ -321,7 +323,7 @@ cat configure.script | while read a; do
 						sed "s%@$i@%$data%g" /tmp/$ARG.$$.1 > /tmp/$ARG.$$.2
 						mv /tmp/$ARG.$$.2 /tmp/$ARG.$$.1
 					done
-					mv $ARG.$$.1 $ARG
+					mv /tmp/$ARG.$$.1 $ARG
 					AFTER 0
 				else
 					if $OPTIONAL; then

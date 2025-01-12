@@ -1,0 +1,12 @@
+# $Id$
+
+DIRS = ./lib
+
+include @TOP@/config.mk
+
+.PHONY: all clean
+
+clean:
+	STATUS=0 ; for i in $(DIRS); do \
+		$(MAKE) -C $$i || STATUS=1 ; \
+	done ; exit $$STATUS
