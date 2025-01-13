@@ -1,12 +1,26 @@
 # $Id$
 
-DIRS = ./lib
+DIRS = ./lib ./bin
 
 include @TOP@/config.mk
 
-.PHONY: all clean
+.PHONY: all clean distclean ./bin ./lib
+
+all: ./bin
+
+./bin:: ./lib
+	$(MAKE) -C $@
+
+./lib::
+	$(MAKE) -C $@
 
 clean:
 	STATUS=0 ; for i in $(DIRS); do \
-		$(MAKE) -C $$i || STATUS=1 ; \
+		$(MAKE) -C $$i clean || STATUS=1 ; \
 	done ; exit $$STATUS
+
+distclean:
+	STATUS=0 ; for i in $(DIRS); do \
+		$(MAKE) -C $$i distclean || STATUS=1 ; \
+	done ; exit $$STATUS
+	rm -f config.h config.mk Makefile

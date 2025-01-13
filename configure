@@ -1,8 +1,9 @@
 #!/bin/sh
 
 TOP=`pwd`
+PREFIX="/usr/local"
 
-EXPORTS="TOP"
+EXPORTS="TOP PREFIX"
 
 if [ ! -e ./configure.script ]; then
 	echo "configure.script is missing, aborted"
@@ -16,6 +17,9 @@ for arg in $@; do
 			echo ""
 			echo "Usage: $0 [options]"
 			exit 0
+			;;
+		--prefix=*)
+			PREFIX=`echo $arg | sed "s/--prefix=//g"`
 			;;
 		*)
 			echo "Invalid option: $arg"
@@ -185,7 +189,7 @@ AFTER () {
 echo "# This file was auto-generated" > config.mk
 echo "/* This file was auto-generated */" > config.h
 
-cat configure.script | while read a; do
+while read a; do
 	OP=`echo $a | cut -d" " -f1`
 	LEN=`echo -n $OP | wc -m`
 	LEN=`expr $LEN + 2`
@@ -294,7 +298,6 @@ cat configure.script | while read a; do
 						AFTER 1
 					else
 						echo "$CC"
-						echo "CC=$CC" >> config.mk
 						AFTER 0
 					fi
 					EXPORTS="$EXPORTS CC"
@@ -316,14 +319,14 @@ cat configure.script | while read a; do
 			if $RUNIF; then
 				echo "Creating $ARG"
 				if [ -f $ARG.in ]; then
-					cp $ARG.in /tmp/$ARG.$$.1
+					cp $ARG.in /tmp/$$.1
 					for i in $EXPORTS; do
 						eval "data=\$$i"
 						data="`echo "$data" | sed -E "s/%/\\\\\%/g"`"
-						sed "s%@$i@%$data%g" /tmp/$ARG.$$.1 > /tmp/$ARG.$$.2
-						mv /tmp/$ARG.$$.2 /tmp/$ARG.$$.1
+						sed "s%@$i@%$data%g" /tmp/$$.1 > /tmp/$$.2
+						mv /tmp/$$.2 /tmp/$$.1
 					done
-					mv /tmp/$ARG.$$.1 $ARG
+					mv /tmp/$$.1 $ARG
 					AFTER 0
 				else
 					if $OPTIONAL; then
@@ -337,4 +340,9 @@ cat configure.script | while read a; do
 			;;
 	esac
 	DEBUG "--- END Line $a ---"
+done < configure.script
+
+for i in $EXPORTS; do
+	eval "data=\$$i"
+	echo "$i=$data" >> config.mk
 done

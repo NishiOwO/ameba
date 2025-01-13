@@ -35,3 +35,5 @@ h?;i stdint.h
 
 # Output files
 o Makefile
+o lib/Makefile
+o bin/Makefile

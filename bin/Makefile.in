@@ -1,0 +1,13 @@
+# $Id$
+
+include @TOP@/config.mk
+
+.PHONY: all clean distclean
+
+all:
+
+clean:
+	rm -f amb *.exe *.o
+
+distclean: clean
+	rm -f Makefile
