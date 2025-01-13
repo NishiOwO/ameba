@@ -7,9 +7,9 @@ include @TOP@/config.mk
 .PHONY: all install clean distclean
 .SUFFIXES: .c .o
 
-all: amb$(EXEC)
+all: amb@EXEC@
 
-amb$(EXEC): $(OBJS)
+amb@EXEC@: $(OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS) ../lib/libamb.a
 
 .c.o:

@@ -10,7 +10,8 @@ include @TOP@/config.mk
 all: libamb.a
 
 libamb.a: $(OBJS)
-	$(AR) rcs $@ $(OBJS)
+	$(AR) rc $@ $(OBJS)
+	$(RANLIB) $@
 
 .c.o:
 	$(CC) -c $(CFLAGS) -o $@ $<

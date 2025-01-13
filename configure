@@ -2,8 +2,9 @@
 
 TOP=`pwd`
 PREFIX="/usr/local"
+EXEC=""
 
-EXPORTS="TOP PREFIX"
+EXPORTS="TOP PREFIX EXEC"
 
 if [ ! -e ./configure.script ]; then
 	echo "configure.script is missing, aborted"
@@ -20,6 +21,9 @@ for arg in $@; do
 			;;
 		--prefix=*)
 			PREFIX=`echo $arg | sed "s/--prefix=//g"`
+			;;
+		--config=*)
+			. `echo $arg | sed "s/--config=//g"`
 			;;
 		*)
 			echo "Invalid option: $arg"
@@ -342,6 +346,25 @@ while read a; do
 						AFTER 0
 					fi
 					EXPORTS="$EXPORTS AR"
+				elif [ "x$ARG" = "xr" ]; then
+					echo -n "Probing ranlib... "
+					if [ "x$RANLIB" = "x" ]; then
+						RANLIB=`PROBE granlib ranlib`
+					fi
+					if [ "x$RANLIB" = "x" ]; then
+						echo "not found"
+						if $OPTIONAL; then
+							:
+						else
+							echo "Ranlib not found!" > /dev/stderr
+							exit 1
+						fi
+						AFTER 1
+					else
+						echo "$RANLIB"
+						AFTER 0
+					fi
+					EXPORTS="$EXPORTS RANLIB"
 				else
 					echo "Not supported" > /dev/stderr
 					exit 1
