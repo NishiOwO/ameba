@@ -2,9 +2,11 @@
 
 include @TOP@/config.mk
 
-.PHONY: all clean distclean
+.PHONY: all install clean distclean
 
 all:
+
+install: all
 
 clean:
 	rm -f *.so *.dll *.o
