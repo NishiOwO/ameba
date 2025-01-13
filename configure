@@ -1,4 +1,6 @@
 #!/bin/sh
+# $Id$
+# @Id.
 
 TOP=`pwd`
 PREFIX="/usr/local"
