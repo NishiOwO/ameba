@@ -5,6 +5,7 @@
 #   `h'       checks the header
 #   `#'       specifies itself as comment
 #   `p c'     probes the C compiler
+#   `p ar'    probes the archiver (ar)
 #   `m'       prints a message
 #   `f ansi'  checks the flag for ANSI (C89)
 #   `o'       generates files
@@ -15,6 +16,7 @@
 #   `;<char>' makes the operation define label <char> if failure
 #   `@<char>' makes the operation run if label <char> is defined
 p c
+p ar
 f? ansi
 
 # Really old os seems to not define malloc in stdlib.h

@@ -1,10 +1,19 @@
 # $Id$
 
+OBJS = main.o
+
 include @TOP@/config.mk
 
 .PHONY: all install clean distclean
+.SUFFIXES: .c .o
 
-all:
+all: amb$(EXEC)
+
+amb$(EXEC): $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS) ../lib/libamb.a
+
+.c.o:
+	$(CC) -c $(CFLAGS) -o $@ $<
 
 install: all
 

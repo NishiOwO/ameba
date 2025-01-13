@@ -1,15 +1,24 @@
 # $Id$
 
+OBJS = main.o
+
 include @TOP@/config.mk
 
 .PHONY: all install clean distclean
+.SUFFIXES: .c .o
 
-all:
+all: libamb.a
+
+libamb.a: $(OBJS)
+	$(AR) rcs $@ $(OBJS)
+
+.c.o:
+	$(CC) -c $(CFLAGS) -o $@ $<
 
 install: all
 
 clean:
-	rm -f *.so *.dll *.o
+	rm -f *.so *.dll *.a *.o
 
 distclean: clean
 	rm -f Makefile

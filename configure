@@ -152,6 +152,28 @@ PROBE () {
 			if [ -f $p/$i ]; then
 				DEBUG "$p/$i exists"
 				IFS="$OLDIFS"
+				echo $p/$i
+				DEBUG "--- END Probing ---"
+				return 0
+			else
+				DEBUG "$p/$i does not exist"
+			fi
+		done
+		IFS="$OLDIFS"
+	done
+	DEBUG "--- END Probing ---"
+	return 1
+}
+
+PROBE_C () {
+	DEBUG "--- BEGIN Probing C ---"
+	for i in $@; do
+		OLDIFS="$IFS"
+		IFS=":"
+		for p in $PATH; do
+			if [ -f $p/$i ]; then
+				DEBUG "$p/$i exists"
+				IFS="$OLDIFS"
 				if TEST_C $p/$i; then
 					IFS=":"
 					echo $p/$i
@@ -165,7 +187,7 @@ PROBE () {
 		done
 		IFS="$OLDIFS"
 	done
-	DEBUG "--- END Probing ---"
+	DEBUG "--- END Probing C ---"
 	return 1
 }
 
@@ -285,7 +307,7 @@ while read a; do
 				if [ "x$ARG" = "xc" ]; then
 					echo -n "Probing C compiler... "
 					if [ "x$CC" = "x" ]; then
-						CC=`PROBE gcc clang cc`
+						CC=`PROBE_C gcc clang cc`
 					fi
 					if [ "x$CC" = "x" ]; then
 						echo "not found"
@@ -301,6 +323,25 @@ while read a; do
 						AFTER 0
 					fi
 					EXPORTS="$EXPORTS CC"
+				elif [ "x$ARG" = "xar" ]; then
+					echo -n "Probing archiver... "
+					if [ "x$AR" = "x" ]; then
+						AR=`PROBE gar ar`
+					fi
+					if [ "x$AR" = "x" ]; then
+						echo "not found"
+						if $OPTIONAL; then
+							:
+						else
+							echo "Archiver not found!" > /dev/stderr
+							exit 1
+						fi
+						AFTER 1
+					else
+						echo "$AR"
+						AFTER 0
+					fi
+					EXPORTS="$EXPORTS AR"
 				else
 					echo "Not supported" > /dev/stderr
 					exit 1
