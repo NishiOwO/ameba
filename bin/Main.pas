@@ -5,6 +5,7 @@ program Main;
 
 uses
 	AmebaVersion,
+	AmebaCore,
 	StringUtil,	(* DEP *)
 	SubClone,	(* DEP *)
 	SubServer,	(* DEP *)
@@ -67,6 +68,8 @@ begin
 end;
 
 begin
+	AmebaDoDebug := True;
+	AmebaInit;
 	for ArgI := 1 to ParamCount do begin
 		if IsArg(ParamStr(ArgI), 'V', 'version') then begin
 			WriteLn('Ameba VCS version ' + AmebaGetVersion());
