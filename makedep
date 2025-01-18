@@ -34,7 +34,7 @@ parse () {
 		eval "data=\"\$deps_$3\""
 		cond=true
 		for i in $data; do
-			if [ $i = $DEPNAME ]; then
+			if [ $i = $DEPNAME.o ]; then
 				cond=false
 				break
 			fi

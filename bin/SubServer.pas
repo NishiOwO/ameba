@@ -1,6 +1,5 @@
 (* $Id$ *)
 (* @Id. *)
-(* END USE *)
 unit SubServer;
 
 interface
@@ -8,13 +7,14 @@ function SubcommandServer(Start: Integer) : Integer;
 
 implementation
 uses
-	SysUtils;
+	SysUtils,
+	StringUtil;	(* DEP *)
+(* END USE *)
 function SubcommandServer(Start: Integer) : Integer;
 var
 	ArgI : Integer;
 begin
 	for ArgI := Start to ParamCount do begin
-		WriteLn(ParamStr(ArgI));
 	end;
 	SubcommandServer := 0;
 end;
