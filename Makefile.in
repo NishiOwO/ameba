@@ -29,4 +29,4 @@ distclean:
 	STATUS=0 ; for i in $(DIRS); do \
 		$(MAKE) -C $$i $@ || STATUS=1 ; \
 	done ; exit $$STATUS
-	rm -f config.h config.mk Makefile
+	rm -f config.h config.mk Makefile */deps.mk
