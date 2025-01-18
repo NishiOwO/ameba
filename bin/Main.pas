@@ -13,14 +13,6 @@ uses
 
 (* END USE *)
 
-type
-	TSubcommandCall = function(Start: Integer) : Integer;
-	Subcommand = record
-		Name: String;
-		Description: String;
-		Call: TSubcommandCall;
-	end;
-
 const
 	GlobalFlags : Array of String = (
 		'h', 'help',	'Displays the help',
@@ -30,42 +22,10 @@ const
 		(Name: 'clone';		Description: 'Clones the repository';	Call: @SubcommandClone),
 		(Name: 'server';	Description: 'Starts the server';	Call: @SubcommandServer)
 	);
-	MaxShowLength : Integer = 30;
 
 var
 	ArgI : Integer;
 	SubI: Integer;
-
-procedure ShowFlags(Flags : Array of String);
-var
-	FlagI : Integer;
-	IndentI : Integer;
-begin
-	FlagI := 0;
-	IndentI := 0;
-	repeat
-		Write('  -' + Flags[FlagI]);
-		Write('   --' + Flags[FlagI + 1]);
-		for IndentI := 0 to MaxShowLength - 3 - 2 - 2 - 2 - Length(Flags[FlagI + 1]) do Write(' ');
-		WriteLn(Flags[FlagI + 2]);
-		FlagI := FlagI + 3;
-	until FlagI = Length(Flags);
-end;
-
-procedure ShowSubcommands(Subcommands : Array of Subcommand);
-var
-	SubcommandI : Integer;
-	IndentI : Integer;
-begin
-	SubcommandI := 0;
-	IndentI := 0;
-	repeat
-		Write('  ' + Subcommands[SubcommandI].Name);
-		for IndentI := 0 to MaxShowLength - 2 - Length(Subcommands[SubcommandI].Name) do Write(' ');
-		WriteLn(Subcommands[SubcommandI].Description);
-		SubcommandI := SubcommandI + 1;
-	until SubcommandI = Length(Subcommands);
-end;
 
 begin
 	AmebaDoDebug := True;

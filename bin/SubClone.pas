@@ -14,9 +14,12 @@ function SubcommandClone(Start: Integer) : Integer;
 var
 	ArgI : Integer;
 begin
-	for ArgI := Start to ParamCount do begin
-	end;
 	SubcommandClone := 0;
+	for ArgI := Start to ParamCount do begin
+		if IsArg(ParamStr(ArgI), 'h', 'help') then begin
+			Exit;
+		end;
+	end;
 end;
 
 end.
