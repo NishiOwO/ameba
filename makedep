@@ -1,0 +1,50 @@
+#!/bin/sh
+# $Id$
+# @Id.
+r=""
+robj=""
+add () {
+	cond=true
+	for i in $r; do
+		if [ $i = $1 ]; then
+			cond=false
+			break
+		fi
+	done
+	if $cond; then
+		r="$r $1"
+		robj="$robj $1.o"
+	fi
+}
+parse () {
+	while read a; do
+		for dep in `echo $a | grep '(\* AMEBA \*)' | sed 's/(\* AMEBA \*)//g' | sed 's/,//g' | sed 's/;//g'`; do
+			DEPNAME=`echo $1 | rev | cut -d'/' -f1 | rev | cut -d'.' -f1`
+			parse $2/$dep.pas $2 $DEPNAME
+		done
+	done < $1
+	DEPNAME=`echo $1 | rev | cut -d'/' -f1 | rev | cut -d'.' -f1`
+	add $DEPNAME
+	if [ ! "x$3" = "x" ]; then
+		eval "data=\"\$deps_$3\""
+		cond=true
+		for i in $data; do
+			if [ $i = $DEPNAME ]; then
+				cond=false
+				break
+			fi
+		done
+		if $cond; then
+			eval "deps_$3=\"$data $DEPNAME.o\""
+		fi
+	fi
+}
+for i in `ls -d $1/*.pas`; do
+	parse `echo $i` $1
+done
+echo "all: $robj"
+for i in $r; do
+	eval "data=\"\$deps_$i\""
+	echo "$i.o: $i.pas $data"
+	echo "	\$(PC) $i.pas"
+done

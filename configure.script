@@ -12,6 +12,7 @@
 #   `m'       prints a message
 #   `f ansi'  checks the flag for ANSI (C89)
 #   `o'       generates files
+#   `r'       runs command
 #
 # List of jobs:
 #   `?'       marks the operation as optional
@@ -27,3 +28,6 @@ p r
 o Makefile
 o lib/Makefile
 o bin/Makefile
+
+# Resolve dependencies
+r ./makedep ./lib > ./lib/deps.mk

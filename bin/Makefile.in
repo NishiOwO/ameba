@@ -8,7 +8,7 @@ include @TOP@/config.mk
 all: amb@EXEC@
 
 amb@EXEC@: *.pas
-	$(PC) -o$@ -Fu../lib Main.pas
+	$(PC) -Ur -o$@ -Fu../lib Main.pas
 
 install: all
 

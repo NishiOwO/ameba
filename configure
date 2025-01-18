@@ -423,6 +423,13 @@ while read a; do
 				fi
 			fi
 			;;
+		r*)
+			PARSE
+			if $RUNIF; then
+				eval $ARG
+				AFTER $?
+			fi
+			;;
 	esac
 	DEBUG "--- END Line $a ---"
 done < configure.script

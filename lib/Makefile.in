@@ -4,12 +4,8 @@
 include @TOP@/config.mk
 
 .PHONY: all install clean distclean
-.SUFFIXES: .pas .o
 
-all: AmebaCore.o
-
-.pas.o:
-	$(PC) $<
+include deps.mk
 
 install: all
 
