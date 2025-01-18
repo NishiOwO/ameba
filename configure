@@ -348,6 +348,25 @@ while read a; do
 						AFTER 0
 					fi
 					EXPORTS="$EXPORTS AR"
+				elif [ "x$ARG" = "xp" ]; then
+					echo -n "Probing Pascal compiler... "
+					if [ "x$PC" = "x" ]; then
+						PC=`PROBE fpc`
+					fi
+					if [ "x$PC" = "x" ]; then
+						echo "not found"
+						if $OPTIONAL; then
+							:
+						else
+							echo "Pascal compiler not found!" > /dev/stderr
+							exit 1
+						fi
+						AFTER 1
+					else
+						echo "$PC"
+						AFTER 0
+					fi
+					EXPORTS="$EXPORTS PC"
 				elif [ "x$ARG" = "xr" ]; then
 					echo -n "Probing ranlib... "
 					if [ "x$RANLIB" = "x" ]; then

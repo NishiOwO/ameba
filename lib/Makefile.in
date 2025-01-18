@@ -1,26 +1,20 @@
 # $Id$
 # @Id. 
 
-OBJS = main.o
-
 include @TOP@/config.mk
 
 .PHONY: all install clean distclean
-.SUFFIXES: .c .o
+.SUFFIXES: .pas .o
 
-all: libamb.a
+all: AmebaCore.o
 
-libamb.a: $(OBJS)
-	$(AR) rc $@ $(OBJS)
-	$(RANLIB) $@
-
-.c.o:
-	$(CC) -c $(CFLAGS) -o $@ $<
+.pas.o:
+	$(PC) $<
 
 install: all
 
 clean:
-	rm -f *.so *.dll *.a *.o
+	rm -f *.so *.dll *.a *.o *.ppu
 
 distclean: clean
 	rm -f Makefile

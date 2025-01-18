@@ -1,25 +1,19 @@
 # $Id$
 # @Id. 
 
-OBJS = main.o
-
 include @TOP@/config.mk
 
 .PHONY: all install clean distclean
-.SUFFIXES: .c .o
 
 all: amb@EXEC@
 
-amb@EXEC@: $(OBJS)
-	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS) ../lib/libamb.a
-
-.c.o:
-	$(CC) -c $(CFLAGS) -o $@ $<
+amb@EXEC@: *.pas
+	$(PC) -Fu../lib amb.pas
 
 install: all
 
 clean:
-	rm -f amb *.exe *.o
+	rm -f amb *.exe *.o *.ppu
 
 distclean: clean
 	rm -f Makefile

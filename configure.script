@@ -6,6 +6,7 @@
 #   `h'       checks the header
 #   `#'       specifies itself as comment
 #   `p c'     probes the C compiler
+#   `p p'     probes the Pascal compiler
 #   `p ar'    probes the archiver (ar)
 #   `p r'     probes the ranlib
 #   `m'       prints a message
@@ -18,25 +19,9 @@
 #   `;<char>' makes the operation define label <char> if failure
 #   `@<char>' makes the operation run if label <char> is defined
 p c
+p p
 p ar
 p r
-f? ansi
-
-# Really old os seems to not define malloc in stdlib.h
-s?:m malloc@stdlib.h
-d@m HAS_MALLOC
-
-# WinSock2
-h?:w;u winsock2.h
-h@w ws2tcpip.h
-
-# BSD Socket
-h@u sys/socket.h
-h@u netinet/in.h
-h@u arpa/inet.h
-
-# stdint.h is missing in C89, but use it if present
-h?;i stdint.h
 
 # Output files
 o Makefile
