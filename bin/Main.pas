@@ -7,20 +7,31 @@ uses
 	AmebaVersion,
 	StringUtil,
 	SubClone,
+	SubServer,
 	SysUtils;
+
+type
+	TSubcommandCall = function(Start: Integer) : Integer;
+	Subcommand = record
+		Name: String;
+		Description: String;
+		Call: TSubcommandCall;
+	end;
 
 const
 	GlobalFlags : Array of String = (
 		'h', 'help',	'Displays the help',
 		'V', 'version',	'Displays the version'
 	);
-	GlobalSubcommands : Array of String = (
-		'clone',	'Clones the repository'
+	GlobalSubcommands : Array of Subcommand = (
+		(Name: 'clone';		Description: 'Clones the repository';	Call: @SubcommandClone),
+		(Name: 'server';	Description: 'Starts the server';	Call: @SubcommandServer)
 	);
 	MaxShowLength : Integer = 30;
 
 var
 	ArgI : Integer;
+	SubI: Integer;
 
 procedure ShowFlags(Flags : Array of String);
 var
@@ -38,7 +49,7 @@ begin
 	until FlagI = Length(Flags);
 end;
 
-procedure ShowSubcommands(Subcommands : Array of String);
+procedure ShowSubcommands(Subcommands : Array of Subcommand);
 var
 	SubcommandI : Integer;
 	IndentI : Integer;
@@ -46,10 +57,10 @@ begin
 	SubcommandI := 0;
 	IndentI := 0;
 	repeat
-		Write('  ' + Subcommands[SubcommandI]);
-		for IndentI := 0 to MaxShowLength - 2 - Length(Subcommands[SubcommandI]) do Write(' ');
-		WriteLn(Subcommands[SubcommandI + 1]);
-		SubcommandI := SubcommandI + 2;
+		Write('  ' + Subcommands[SubcommandI].Name);
+		for IndentI := 0 to MaxShowLength - 2 - Length(Subcommands[SubcommandI].Name) do Write(' ');
+		WriteLn(Subcommands[SubcommandI].Description);
+		SubcommandI := SubcommandI + 1;
 	until SubcommandI = Length(Subcommands);
 end;
 
@@ -72,12 +83,13 @@ begin
 			WriteLn(StdErr, 'Invalid option: ' + ParamStr(ArgI));
 			Halt(1);
 		end else begin
-			if ParamStr(ArgI) = 'clone' then begin
-				Halt(SubcommandClone(ArgI + 1));
-			end else begin
-				WriteLn(StdErr, 'Invalid subcommand: ' + ParamStr(ArgI));
-				Halt(1);
+			for SubI := 0 to Length(GlobalSubcommands) do begin
+				if GlobalSubcommands[SubI].Name = ParamStr(ArgI) then begin
+					Halt(GlobalSubcommands[SubI].Call(ArgI + 1));
+				end;
 			end;
+			WriteLn(StdErr, 'Invalid subcommand: ' + ParamStr(ArgI));
+			Halt(1);
 		end;
 	end;
 	WriteLn(StdErr, 'Type ''' + ParamStr(0) + ' --help'' for usage');
