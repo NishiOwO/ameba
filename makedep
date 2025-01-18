@@ -3,6 +3,7 @@
 # @Id.
 r=""
 robj=""
+echo -n "Creating deps.mk for $1..." >/dev/stderr
 add () {
 	cond=true
 	for i in $r; do
@@ -18,7 +19,11 @@ add () {
 }
 parse () {
 	while read a; do
-		for dep in `echo $a | grep '(\* AMEBA \*)' | sed 's/(\* AMEBA \*)//g' | sed 's/,//g' | sed 's/;//g'`; do
+		echo $a | grep '(\* END USE \*)' >/dev/null 2>&1
+		if [ "$?" = "0" ]; then
+			break
+		fi
+		for dep in `echo $a | grep '(\* DEP \*)' | sed 's/(\* DEP \*)//g' | sed 's/,//g' | sed 's/;//g'`; do
 			DEPNAME=`echo $1 | rev | cut -d'/' -f1 | rev | cut -d'.' -f1`
 			parse $2/$dep.pas $2 $DEPNAME
 		done
@@ -40,11 +45,13 @@ parse () {
 	fi
 }
 for i in `ls -d $1/*.pas`; do
+	echo -n " `echo $i | rev | cut -d"/" -f1 | rev`" >/dev/stderr
 	parse `echo $i` $1
 done
+echo >/dev/stderr
 echo "all: $robj"
 for i in $r; do
 	eval "data=\"\$deps_$i\""
 	echo "$i.o: $i.pas $data"
-	echo "	\$(PC) $i.pas"
+	echo "	\$(PC) \$(PCFLAGS) -oamb\$(EXEC) -Fu../lib $i.pas"
 done

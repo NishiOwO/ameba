@@ -8,7 +8,8 @@ procedure AmebaInit;
 
 implementation
 uses
-	AmebaVersion;	(* AMEBA *)
+	AmebaVersion;	(* DEP *)
+(* END USE *)
 procedure AmebaInit;
 begin
 end;

@@ -1,0 +1,5 @@
+#!/bin/sh
+# $Id$
+# @Id.
+PCFLAGS="-Twin64"
+EXEC=".exe"

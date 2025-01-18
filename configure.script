@@ -31,3 +31,4 @@ o bin/Makefile
 
 # Resolve dependencies
 r ./makedep ./lib > ./lib/deps.mk
+r ./makedep ./bin > ./bin/deps.mk

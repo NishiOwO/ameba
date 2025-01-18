@@ -366,7 +366,7 @@ while read a; do
 						echo "$PC"
 						AFTER 0
 					fi
-					EXPORTS="$EXPORTS PC"
+					EXPORTS="$EXPORTS PC PCFLAGS"
 				elif [ "x$ARG" = "xr" ]; then
 					echo -n "Probing ranlib... "
 					if [ "x$RANLIB" = "x" ]; then

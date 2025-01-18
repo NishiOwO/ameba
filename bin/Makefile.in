@@ -5,10 +5,7 @@ include @TOP@/config.mk
 
 .PHONY: all install clean distclean
 
-all: amb@EXEC@
-
-amb@EXEC@: *.pas
-	$(PC) -Ur -o$@ -Fu../lib Main.pas
+include deps.mk
 
 install: all
 

@@ -5,10 +5,12 @@ program Main;
 
 uses
 	AmebaVersion,
-	StringUtil,
-	SubClone,
-	SubServer,
+	StringUtil,	(* DEP *)
+	SubClone,	(* DEP *)
+	SubServer,	(* DEP *)
 	SysUtils;
+
+(* END USE *)
 
 type
 	TSubcommandCall = function(Start: Integer) : Integer;
