@@ -53,5 +53,5 @@ echo "all: $robj"
 for i in $r; do
 	eval "data=\"\$deps_$i\""
 	echo "$i.o: $i.pas $data"
-	echo "	\$(PC) \$(PCFLAGS) -oamb\$(EXEC) -Fu../lib $i.pas"
+	echo "	\$(PC) -vw -l- \$(PCFLAGS) -oamb\$(EXEC) -Fu../lib $i.pas"
 done
