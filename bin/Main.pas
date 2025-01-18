@@ -1,11 +1,12 @@
 (* $Id$ *)
 (* @Id. *)
 
-program amb;
+program Main;
 
 uses
 	AmebaVersion,
 	StringUtil,
+	SubClone,
 	SysUtils;
 
 const
@@ -13,7 +14,10 @@ const
 		'h', 'help',	'Displays the help',
 		'V', 'version',	'Displays the version'
 	);
-	MaxFlagLength : Integer = 15;
+	GlobalSubcommands : Array of String = (
+		'clone',	'Clones the repository'
+	);
+	MaxShowLength : Integer = 30;
 
 var
 	ArgI : Integer;
@@ -28,10 +32,25 @@ begin
 	repeat
 		Write('  -' + Flags[FlagI]);
 		Write('   --' + Flags[FlagI + 1]);
-		for IndentI := 0 to MaxFlagLength - Length(Flags[FlagI + 1]) do Write(' ');
+		for IndentI := 0 to MaxShowLength - 3 - 2 - 2 - 2 - Length(Flags[FlagI + 1]) do Write(' ');
 		WriteLn(Flags[FlagI + 2]);
 		FlagI := FlagI + 3;
 	until FlagI = Length(Flags);
+end;
+
+procedure ShowSubcommands(Subcommands : Array of String);
+var
+	SubcommandI : Integer;
+	IndentI : Integer;
+begin
+	SubcommandI := 0;
+	IndentI := 0;
+	repeat
+		Write('  ' + Subcommands[SubcommandI]);
+		for IndentI := 0 to MaxShowLength - 2 - Length(Subcommands[SubcommandI]) do Write(' ');
+		WriteLn(Subcommands[SubcommandI + 1]);
+		SubcommandI := SubcommandI + 2;
+	until SubcommandI = Length(Subcommands);
 end;
 
 begin
@@ -45,12 +64,16 @@ begin
 			WriteLn('');
 			WriteLn('Global flags:');
 			ShowFlags(GlobalFlags);
+			WriteLn('');
+			WriteLn('Subcommands:');
+			ShowSubcommands(GlobalSubcommands);
 			Halt(0);
 		end else if HasArgPrefix(ParamStr(ArgI)) then begin
 			WriteLn(StdErr, 'Invalid option: ' + ParamStr(ArgI));
 			Halt(1);
 		end else begin
-			if ParamStr(ArgI) = 'a' then begin
+			if ParamStr(ArgI) = 'clone' then begin
+				Halt(SubcommandClone(ArgI + 1));
 			end else begin
 				WriteLn(StdErr, 'Invalid subcommand: ' + ParamStr(ArgI));
 				Halt(1);
