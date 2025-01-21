@@ -6,7 +6,7 @@ robj=""
 
 USEECHO=true
 
-if [ `echo -n` = "-n" ]; then
+if [ `echo -n x` = "-n x" ]; then
 	USEECHO=false
 fi
 
