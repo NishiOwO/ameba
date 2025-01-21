@@ -49,7 +49,7 @@ PARSE () {
 	FAILLABEL=""
 	RUNIF=true
 	_JOB=""
-	OPLEN=`echo -n "$OP" | wc -m`
+	OPLEN=`NONL "$OP" | wc -m`
 	DEBUG "--- BEGIN Parsing operator: $OP ---"
 	while [ $i -le $OPLEN ]; do
 		if [ $i -gt 1 ]; then
@@ -214,12 +214,26 @@ AFTER () {
 	fi
 }
 
+USEECHO=true
+
+if [ `echo -n` = "-n" ]; then
+	USEECHO=false
+fi
+
+NONL () {
+	if $USEECHO; then
+		echo -n "$1"
+	else
+		printf "$1"
+	fi
+}
+
 echo "# This file was auto-generated" > config.mk
 echo "/* This file was auto-generated */" > config.h
 
 while read a; do
-	OP=`echo $a | cut -d" " -f1`
-	LEN=`echo -n $OP | wc -m`
+	OP=`NONL $a | cut -d" " -f1`
+	LEN=`NONL $OP | wc -m`
 	LEN=`expr $LEN + 2`
 	ARG=`echo $a | cut -c$LEN-`
 	DEBUG "--- BEGIN Line $a ---"
@@ -232,7 +246,7 @@ while read a; do
 			PARSE
 			if $RUNIF; then
 				if [ "$ARG" = "ansi" ]; then
-					echo -n "Checking the flag for ANSI... "
+					NONL "Checking the flag for ANSI... "
 					COMPILE_C "int main(int argc, char** argv){}" "-std=c89"
 					if [ "$RET" = "0" ]; then
 						ANSI="-std=c89"
@@ -264,7 +278,7 @@ while read a; do
 			if $RUNIF; then
 				SYMBOL=`echo $ARG | cut -d"@" -f1`
 				HEADER=`echo $ARG | cut -d"@" -f2`
-				echo -n "Checking if $SYMBOL exists in $HEADER... "
+				NONL "Checking if $SYMBOL exists in $HEADER... "
 				COMPILE_C "#include <$HEADER>\nint main(int argc, char** argv){(void)$SYMBOL;return 0;}"
 				RET=$?
 				if [ "$RET" = "0" ]; then
@@ -290,7 +304,7 @@ while read a; do
 		h*)
 			PARSE
 			if $RUNIF; then
-				echo -n "Checking if $ARG exists... "
+				NONL "Checking if $ARG exists... "
 				COMPILE_C "#include <$ARG>"
 				RET=$?
 				if [ "$RET" = "0" ]; then
@@ -311,7 +325,7 @@ while read a; do
 			PARSE
 			if $RUNIF; then
 				if [ "x$ARG" = "xc" ]; then
-					echo -n "Probing C compiler... "
+					NONL "Probing C compiler... "
 					if [ "x$CC" = "x" ]; then
 						CC=`PROBE_C gcc clang cc`
 					fi
@@ -330,7 +344,7 @@ while read a; do
 					fi
 					EXPORTS="$EXPORTS CC"
 				elif [ "x$ARG" = "xar" ]; then
-					echo -n "Probing archiver... "
+					NONL "Probing archiver... "
 					if [ "x$AR" = "x" ]; then
 						AR=`PROBE gar ar`
 					fi
@@ -349,7 +363,7 @@ while read a; do
 					fi
 					EXPORTS="$EXPORTS AR"
 				elif [ "x$ARG" = "xp" ]; then
-					echo -n "Probing Pascal compiler... "
+					NONL "Probing Pascal compiler... "
 					if [ "x$PC" = "x" ]; then
 						PC=`PROBE fpc`
 					fi
@@ -368,7 +382,7 @@ while read a; do
 					fi
 					EXPORTS="$EXPORTS PC PCFLAGS"
 				elif [ "x$ARG" = "xr" ]; then
-					echo -n "Probing ranlib... "
+					NONL "Probing ranlib... "
 					if [ "x$RANLIB" = "x" ]; then
 						RANLIB=`PROBE granlib ranlib`
 					fi
