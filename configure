@@ -421,7 +421,7 @@ while read a; do
 					cp $ARG.in /tmp/$$.1
 					for i in $EXPORTS; do
 						eval "data=\$$i"
-						data="`echo "$data" | sed -E "s/%/\\\\\%/g"`"
+						data="`echo "$data" | sed "s/%/\\\\\%/g"`"
 						sed "s%@$i@%$data%g" /tmp/$$.1 > /tmp/$$.2
 						mv /tmp/$$.2 /tmp/$$.1
 					done

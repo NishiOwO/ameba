@@ -3,7 +3,37 @@
 # @Id.
 r=""
 robj=""
-echo -n "Creating deps.mk for $1..." >/dev/stderr
+
+USEECHO=true
+
+if [ `echo -n` = "-n" ]; then
+	USEECHO=false
+fi
+
+NONL () {
+	if $USEECHO; then
+		echo -n "$1"
+	else
+		printf "$1"
+	fi
+}
+
+HASREV=false
+
+rev < /dev/null >/dev/null 2>&1
+if [ "$?" = "0" ]; then
+	HASREV=true
+fi
+
+REV () {
+	if $HASREV; then
+		rev
+	else
+		perl -lpe'$_ = reverse'
+	fi
+}
+
+NONL "Creating deps.mk for $1..." >/dev/stderr
 add () {
 	cond=true
 	for i in $r; do
@@ -24,11 +54,11 @@ parse () {
 			break
 		fi
 		for dep in `echo $a | grep '(\* DEP \*)' | sed 's/(\* DEP \*)//g' | sed 's/,//g' | sed 's/;//g'`; do
-			DEPNAME=`echo $1 | rev | cut -d'/' -f1 | rev | cut -d'.' -f1`
+			DEPNAME=`echo $1 | REV | cut -d'/' -f1 | REV | cut -d'.' -f1`
 			parse $2/$dep.pas $2 $DEPNAME
 		done
 	done < $1
-	DEPNAME=`echo $1 | rev | cut -d'/' -f1 | rev | cut -d'.' -f1`
+	DEPNAME=`echo $1 | REV | cut -d'/' -f1 | REV | cut -d'.' -f1`
 	add $DEPNAME
 	if [ ! "x$3" = "x" ]; then
 		eval "data=\"\$deps_$3\""
@@ -45,7 +75,7 @@ parse () {
 	fi
 }
 for i in `ls -d $1/*.pas`; do
-	echo -n " `echo $i | rev | cut -d"/" -f1 | rev`" >/dev/stderr
+	NONL " `echo $i | REV | cut -d"/" -f1 | REV`" >/dev/stderr
 	parse `echo $i` $1
 done
 echo >/dev/stderr
