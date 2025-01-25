@@ -5,6 +5,7 @@ unit SubServer;
 interface
 const
 	ServerFlags : Array of String = (
+		'h', 'help',	'Displays the help',
 		'i', 'inetd',	'Runs as inetd mode'
 	);
 
