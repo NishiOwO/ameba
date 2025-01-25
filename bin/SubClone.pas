@@ -19,6 +19,10 @@ begin
 	for ArgI := Start to ParamCount do begin
 		if IsArg(ParamStr(ArgI), 'h', 'help') then begin
 			Exit;
+		end else begin
+			SubcommandClone := 1;
+			WriteLn('Invalid option: ' + ParamStr(ArgI));
+			Exit;
 		end;
 	end;
 end;

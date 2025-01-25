@@ -34,6 +34,10 @@ begin
 			WriteLn('Flags:');
 			ShowFlags(ServerFlags);
 			Exit;
+		end else begin
+			SubcommandServer := 1;
+			WriteLn('Invalid option: ' + ParamStr(ArgI));
+			Exit;
 		end;
 	end;
 	AmebaServerStart(RootPath, RunInetd);
