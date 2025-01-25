@@ -10,6 +10,7 @@ uses
 	SysUtils,
 	StringUtil;	(* DEP *)
 (* END USE *)
+
 function SubcommandClone(Start: Integer) : Integer;
 var
 	ArgI : Integer;
